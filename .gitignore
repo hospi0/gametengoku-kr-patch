@@ -1,0 +1,12 @@
+my files/
+dist/
+__pycache__/
+work/*
+!work/voice/
+work/voice/*
+!work/voice/ko.tsv
+!work/voice/sub_all.tsv
+!work/voice/ko_fix/
+!work/voice/op_lyrics.tsv
+!work/voice/op_lyrics_ko.tsv
+!work/노래방_가사_초안.tsv
