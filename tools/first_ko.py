@@ -63,8 +63,34 @@ if __name__ == '__main__':
     G = np.zeros((H, W), bool); y0 = (H - mh) // 2; x0 = (W - mw) // 2; G[y0:y0 + mh, x0:x0 + mw] = m
     G = dil(G, 2)                                                         # 원본처럼 굵게
     O = dil(G, 3) & ~G
-    new = np.zeros((H, W, 3)); new[G] = fillc[np.nonzero(G)[1]]; new[O] = bluec
-    na = np.where(G | O, quant(new, pal), 0).astype(np.uint8); b[o:o + W * H] = na.tobytes(); pv.append((a, na))
+    # ★채움 = 원본 채움 화소의 «색 번호»를 가장 가까운 자리에서 그대로 복사 — 열 평균 → 팔레트 최근접은 열마다 다른 칸이 골라져 세로 줄무늬(하스피 실기 2026-11-09)
+    #   원본 채움은 디더(여러 칸 섞기)라 → 원본 채움색을 2차원으로 부드럽게 퍼뜨린 색 지도 + 원본 채움에 쓰인 칸만으로 오차 확산
+    src_fill = ink & ~blue & ~dil(~ink, 2)
+    acc = np.zeros((H, W, 3)); wgt = np.zeros((H, W))
+    acc[src_fill] = rgb[src_fill]; wgt[src_fill] = 1
+    s = 9
+    field = np.stack([cv2.GaussianBlur(acc[..., ch], (0, 0), s) for ch in range(3)], -1)
+    wb = cv2.GaussianBlur(wgt, (0, 0), s)
+    for s2 in (18, 36, 72):                                                 # 원본 글자가 없는 먼 자리는 더 넓게
+        far = wb < 0.02
+        if not far.any(): break
+        f2 = np.stack([cv2.GaussianBlur(acc[..., ch], (0, 0), s2) for ch in range(3)], -1); w2 = cv2.GaussianBlur(wgt, (0, 0), s2)
+        field[far] = f2[far]; wb[far] = w2[far]
+    field = field / np.maximum(wb, 1e-6)[..., None]
+    used = np.unique(a[src_fill]); cnt = np.bincount(a[src_fill], minlength=256); used = used[cnt[used] >= 8]
+    up = pal[used].astype(float)
+    na = np.zeros((H, W), np.uint8); err = np.zeros((H, W, 3))
+    for y in range(H):
+        for x in range(W):
+            if not G[y, x]: continue
+            want = field[y, x] + err[y, x]
+            k = ((up - want) ** 2).sum(1).argmin(); na[y, x] = used[k]; e = want - up[k]
+            for dx, dy, f in ((1, 0, 7), (-1, 1, 3), (0, 1, 5), (1, 1, 1)):
+                xx, yy = x + dx, y + dy
+                if 0 <= xx < W and yy < H and G[yy, xx]: err[yy, xx] += e * f / 16
+    new = np.zeros((H, W, 3)); new[O] = bluec
+    na[O] = quant(new, pal)[O]
+    b[o:o + W * H] = na.tobytes(); pv.append((a, na))
     # ── 문구 3줄: 흰 채움 + 무지개 테(열마다)
     o, W, H, lines = MSG
     a = np.frombuffer(src[o:o + W * H], np.uint8).reshape(H, W); rgb = pal[a]

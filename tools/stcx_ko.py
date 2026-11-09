@@ -21,12 +21,12 @@ PINK_R = [110, 109, 108, 107, 106, 97, 96, 94]                          # 분홍
 DARK_R = [79, 77, 74, 69, 65, 61, 58, 56, 50, 44, 38]                 # 진자주 아랫면: 왼쪽→오른쪽(어둡게)
 
 
-def piece(w, h, ch, tilt):
+def piece(w, h, ch, tilt, squeeze=None):                              # squeeze = 가로 좁히기 하한(세로 STC 의 좁은 칸, 없으면 예전 그대로)
     bh = h - DEPTH - 1
     m, mw = syl_mask(ch, bh, tilt, wx=1.0 if w > 24 else 1.1, fat=0)
     mh = max(b for _, b in m) + 1
     wx = 1.0
-    while mw > w - DEPTH and w < 20 and wx > 0.55:                       # 좁은 조각(«이», 화면 16×24): 높이는 두고 가로만 좁혀 크게(하스피 «이가 너무 작다»)
+    while mw > w - DEPTH and (w < 20 or squeeze) and wx > (squeeze or 0.55):                       # 좁은 조각(«이», 화면 16×24): 높이는 두고 가로만 좁혀 크게(하스피 «이가 너무 작다»)
         wx -= 0.05; m, mw = syl_mask(ch, bh, tilt, wx=wx, fat=0); mh = max(b for _, b in m) + 1
     while mw > w - DEPTH and bh > 8:
         bh -= 1; m, mw = syl_mask(ch, bh, tilt, wx=wx, fat=0); mh = max(b for _, b in m) + 1

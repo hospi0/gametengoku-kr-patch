@@ -7,7 +7,8 @@ import os, csv, sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.stdout.reconfigure(encoding='utf-8')
 rows = list(csv.reader(open(os.path.join(ROOT, 'work', 'voice', 'ko.tsv'), encoding='utf-8'), delimiter='\t', quoting=csv.QUOTE_NONE))[1:]
-out = ['파일\t시작\t끝\t원문\t한글\n']; skip = {'VTEST': 0, '빈칸': 0}
+out = ['파일\t시작\t끝\t원문\t한글\n']; skip = {'VTEST': 0, '빈칸': 0, '자막 안 함': 0}
+NOSUB = {'SY00'}   # 첫 실행 «감사 감격» 화면(640×448 겹줄 — 자막이 성기게 찍힘, 화면에 같은 글이 그림으로 있음) — 하스피 2026-11-09 «이 대사만 목록에서 지우면»
 for k, loc, jp, ko, *_ in rows:
     ko = ko.strip()
     if not ko: skip['빈칸'] += 1; continue
@@ -16,6 +17,7 @@ for k, loc, jp, ko, *_ in rows:
         a, b = t[2].split('-'); out.append('\t'.join([t[1], a, b, jp, ko]) + '\n')
     else:
         if t[1].startswith('VTEST_'): skip['VTEST'] += 1; continue
+        if t[1] in NOSUB: skip['자막 안 함'] += 1; continue
         out.append('\t'.join([t[1] + '.AIF', '0.0', t[2].rstrip('s'), jp, ko]) + '\n')
 p = os.path.join(ROOT, 'work', 'voice', 'sub_all.tsv')
 open(p, 'w', encoding='utf-8', newline='').write(''.join(out))
