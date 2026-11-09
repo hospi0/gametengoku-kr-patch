@@ -25,8 +25,11 @@ def piece(w, h, ch, tilt):
     bh = h - DEPTH - 1
     m, mw = syl_mask(ch, bh, tilt, wx=1.0 if w > 24 else 1.1, fat=0)
     mh = max(b for _, b in m) + 1
+    wx = 1.0
+    while mw > w - DEPTH and w < 20 and wx > 0.55:                       # 좁은 조각(«이», 화면 16×24): 높이는 두고 가로만 좁혀 크게(하스피 «이가 너무 작다»)
+        wx -= 0.05; m, mw = syl_mask(ch, bh, tilt, wx=wx, fat=0); mh = max(b for _, b in m) + 1
     while mw > w - DEPTH and bh > 8:
-        bh -= 1; m, mw = syl_mask(ch, bh, tilt, wx=1.0, fat=0); mh = max(b for _, b in m) + 1
+        bh -= 1; m, mw = syl_mask(ch, bh, tilt, wx=wx, fat=0); mh = max(b for _, b in m) + 1
     ox = DEPTH + (w - DEPTH - mw) // 2; oy = (h - DEPTH - mh) // 2
     F = {(a + ox, b + oy) for a, b in m}
     out = [[0] * w for _ in range(h)]
