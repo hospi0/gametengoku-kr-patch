@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 r"""빈 판(tools/plates.py → work/plates/plates.pkl) 위에 한글 — 색(채움·테두리·그림자)·글자 자리는 원본 그림에서
   python tools/plates_ko.py → work/미리보기_그림/메뉴_한글.png (원본 | 한글, 실제 색, 3배)
-  용어는 대사 번역(work/voice/ko.tsv)과 맞춤: 되받아치기·테마송 모음·BGM 모음·덤·잔기 수·오토 봄버·모노
+  용어는 대사 번역(work/voice/ko.tsv)과 맞춤: 되받아치기·테마송 모음·BGM 모음·오마케·잔기 수·오토 봄버·모노
 """
 import os, sys, pickle
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))

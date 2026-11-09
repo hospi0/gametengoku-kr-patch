@@ -36,5 +36,6 @@ if __name__ == '__main__':
     for n, o in DTEND.items():
         p = bld(n); b = bytearray(open(p, 'rb').read()) if os.path.exists(p) else src(n); L = len(b)
         orig = src(n); s = struct.unpack_from('>I', orig, o)[0]
-        assert b[o:o + 4 + s] == orig[o:o + 4 + s], (n, '끝 그림 자리가 이미 바뀜')
+        if b[o:o + 4 + s] != orig[o:o + 4 + s]:                          # 이미 넣은 판(빌드 28~)이면 원본 덩어리로 되돌린 뒤 다시
+            b[o:o + 4 + s] = orig[o:o + 4 + s]
         put(b, o, pic['데이터_끝']); assert len(b) == L; open(p, 'wb').write(b); print(n, '완료')
