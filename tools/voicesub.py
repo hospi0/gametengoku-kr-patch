@@ -25,7 +25,7 @@ VAR = BLOCK + 0x10                                  # 0 cur · 4 frame · 8 show
 LYR = BLOCK + 0xBF8                                 # 가사 재생 중 깃발(1 = 음성 상태 바이트로 안 끔) — XA 표 뒤 빈칸
 LOCC = BLOCK + 0x20                                 # 지역 좌표 (0,0) 명령 — 게임이 장면마다 원점을 바꿈(1차 실기: 자막이 왼쪽 위로 밀려 잘림)
 SPR = BLOCK + 0x40; ENDC = BLOCK + 0x60
-TATE = 0x060D72C8; TATE_X = 4                      # 세로 모드 깃발(바이트 0 = 세로) · 세로 자막 화면 왼쪽 여백(빌드 19, 하스피 «세로모드에서 자막 세로로 화면 왼쪽»)
+TATE = 0x060D72C8; TATE2 = 0x06091DD2; TATE_X = 4                      # 세로 모드 깃발(바이트 0 = 세로) · 세로 자막 화면 왼쪽 여백(빌드 19, 하스피 «세로모드에서 자막 세로로 화면 왼쪽»)
 CODE = BLOCK + 0x80
 XA_FN = 0x0603DA6C; XA_LITS = (0x06040148, 0x06049694, 0x0604EDDC)
 AIF_FN = 0x0603D83C; AIF_LITS = (0x0603DFA8,)
@@ -280,6 +280,7 @@ def code(lay):
     a.ld(1, LYR); a.stl(0, 1); a.rts(); a.nop()
     a.L('tatepos')                                                                         # r3 = TVMD 사본, r0·r1·r2·r4·r5 망가짐
     a.ld(1, TATE); a.ldb(1, 0); a.tst(0, 0); a.br('bf', 'yoko')
+    a.ld(1, TATE2); a.ldb(1, 0); a.tst(0, 0); a.br('bt', 'yoko')                          # ★첫 실행(저장 없음)엔 TATE 가 아직 0 → 둘째 깃발도 1 일 때만 세로(하스피 «첫 화면 자막이 세로로»)
     a.ld(1, SPR); a.movi(2, 0); a.stw(0, 1)                                                # CMDCTRL = 변형 스프라이트
     a.mov(3, 0); a.andi(1); a.shll2(0); a.shll2(0); a.addi(TATE_X, 0); a.mov(0, 4)       # r4 = XL (352 폭이면 +16)
     a.mov(3, 0); a.shlr2(0); a.shlr2(0); a.andi(3); a.shll2(0); a.shll(0); a.ld(2, (224 - W_) // 2); a.add(2, 0); a.mov(0, 5)   # r5 = Y0 = (화면 높이 − 320)/2

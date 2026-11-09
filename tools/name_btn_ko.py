@@ -97,7 +97,13 @@ if __name__ == '__main__':
     do(0x227A4, 64, 32, lambda a: big_btn(a, ['선택']), 0x50)
     do(0x22BA4, 64, 32, lambda a: big_btn(a, ['결정']), 0x50)
     do(0x22FA4, 64, 32, lambda a: big_btn(a, ['한 글자', '지우기']), 0x50)
-    do(0x233A4, 176, 24, lambda a: np.array(rank_ko.title_art('네임 엔트리', 0)[0], np.uint8), 0x60)
+    def title(a):
+        old_tw = rank_ko.TW; rank_ko.TW = 176                          # ★랭킹 제목은 168폭 — 이름 입력 제목은 176폭(그대로 쓰면 줄마다 8px 밀려 깨짐, 하스피 실기)
+        try: t = np.array(rank_ko.title_art('네임 엔트리', 0)[0], np.uint8)
+        finally: rank_ko.TW = old_tw
+        assert t.shape == (24, 176), t.shape
+        return t
+    do(0x233A4, 176, 24, title, 0x60)
     res['NAMEA.BIN'] = bytes(na)
     # 기본 이름(BACKRAM): 칸 번호로 다시 씀
     cellof = pickle.load(open(os.path.join(ROOT, 'work', 'plates', 'name_cells.pkl'), 'rb'))
