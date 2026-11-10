@@ -324,19 +324,13 @@ def code(lay):
     a.rts(); a.nop()
     a.ltorg()
 
-    # ── rstart(r4 = 쪽): 그림 버퍼 지우고 띠 칠함 · 이어 그리기 상태 시작. r8~r14 보존
+    # ── rstart(r4 = 쪽): 그림 버퍼를 투명(0)으로 지움 · 이어 그리기 상태 시작. r8~r14 보존
+    #    ★2026-11-11 하스피 «검은 바탕 없이 테두리만» — 띠(색 1) 칠하기를 뺐다(옛 코드 work/backup_b35/voicesub_b35.py)
     a.L('rstart')
     for n in (8, 9, 10, 11, 12, 13, 14): a.push(n)
     a.mov(4, 14)
     a.ld(1, lay['COMP']); a.ld(2, BMPSZ // 4); a.movi(0, 0)
     a.L('rc'); a.stl(0, 1); a.addi(4, 1); a.dt(2); a.br('bf', 'rc')
-    a.ldwd(8, 14); a.extuw(0, 8); a.ldwd(10, 14); a.extuw(0, 9); a.ldwd(12, 14); a.extuw(0, 10); a.ldwd(14, 14); a.extuw(0, 11)
-    a.mov(10, 1); a.shll2(1); a.shll2(1); a.shll(1); a.mov(1, 0); a.shll2(0); a.add(1, 0)   # by0×160
-    a.ld(12, lay['COMP']); a.add(0, 12)
-    a.mov(11, 13); a.sub(10, 13); a.ld(3, 0x11)
-    a.L('brow'); a.mov(12, 1); a.add(8, 1); a.mov(9, 2); a.sub(8, 2)
-    a.L('bcol'); a.stb(3, 1); a.addi(1, 1); a.dt(2); a.br('bf', 'bcol')
-    a.ld(0, ROWB); a.add(0, 12); a.dt(13); a.br('bf', 'brow')
     a.ld(1, lay['ST']); a.stl(14, 1)                                                       # 그리는 쪽
     a.mov(14, 0); a.addi(16, 0); a.stld(0, 4, 1)                                           # 첫 줄 머리
     a.ldwd(6, 14); a.extuw(0, 0); a.stld(0, 8, 1)                                          # 남은 줄
@@ -367,7 +361,17 @@ def code(lay):
     a.L('gc8'); a.tst(14, 14); a.br('bt', 'gnext')
     a.mov(8, 4)
     a.L('gcol'); a.shll(14); a.br('bf', 'gskip')
-    a.mov(4, 0); a.push(0); a.addi(1, 4); a.mov(9, 5); a.addi(1, 5); a.movi(3, 6); a.movi(1, 7); a.br('bsr', 'pix'); a.nop()
+    # 테두리: 글자 화소 둘레 8칸에 색 3(가장 어두운 칸)을 «투명(0)인 자리에만» → 그다음 글자 색 2 를 무조건
+    #   (pix 는 r4·r5·r6·r7 을 안 바꾼다 — r4 를 옮겨 다니고 마지막에 되돌린다)
+    a.mov(4, 0); a.push(0); a.movi(3, 6); a.movi(1, 7)
+    a.addi(-1, 4); a.mov(9, 5); a.addi(-1, 5); a.br('bsr', 'pix'); a.nop()                # (x-1, y-1)
+    a.addi(1, 4); a.br('bsr', 'pix'); a.nop()                                             # (x,   y-1)
+    a.addi(1, 4); a.br('bsr', 'pix'); a.nop()                                             # (x+1, y-1)
+    a.mov(9, 5); a.br('bsr', 'pix'); a.nop()                                              # (x+1, y)
+    a.addi(-2, 4); a.br('bsr', 'pix'); a.nop()                                            # (x-1, y)
+    a.mov(9, 5); a.addi(1, 5); a.br('bsr', 'pix'); a.nop()                                # (x-1, y+1)
+    a.addi(1, 4); a.br('bsr', 'pix'); a.nop()                                             # (x,   y+1)
+    a.addi(1, 4); a.br('bsr', 'pix'); a.nop()                                             # (x+1, y+1)
     a.pop(4); a.mov(9, 5); a.movi(2, 6); a.movi(0, 7); a.br('bsr', 'pix'); a.nop()
     a.L('gskip'); a.addi(1, 4); a.tst(14, 14); a.br('bf', 'gcol')
     a.L('gnext'); a.addi(1, 9); a.dt(11); a.br('bf', 'grow')
@@ -384,10 +388,10 @@ def code(lay):
     a.mov(4, 1); a.shlr(1); a.add(1, 0); a.ld(2, lay['COMP']); a.add(0, 2)
     a.ldb(2, 1); a.extub(1, 1); a.mov(4, 0); a.tsti(1); a.br('bf', 'podd')
     a.mov(1, 3); a.shlr2(3); a.shlr2(3)
-    a.tst(7, 7); a.br('bt', 'pe1'); a.movi(1, 0); a.cmpeq(0, 3); a.br('bf', 'pret')
+    a.tst(7, 7); a.br('bt', 'pe1'); a.movi(0, 0); a.cmpeq(0, 3); a.br('bf', 'pret')          # 조건부(r7≠0) = 투명 자리에만(옛: 띠 1)
     a.L('pe1'); a.mov(1, 0); a.andi(0x0F); a.mov(6, 3); a.shll2(3); a.shll2(3); a.or_(3, 0); a.stb(0, 2); a.rts(); a.nop()
     a.L('podd'); a.mov(1, 0); a.andi(0x0F); a.mov(0, 3)
-    a.tst(7, 7); a.br('bt', 'po1'); a.movi(1, 0); a.cmpeq(0, 3); a.br('bf', 'pret')
+    a.tst(7, 7); a.br('bt', 'po1'); a.movi(0, 0); a.cmpeq(0, 3); a.br('bf', 'pret')          # 조건부 = 투명 자리에만
     a.L('po1'); a.mov(1, 0); a.andi(0xF0); a.or_(6, 0); a.stb(0, 2)
     a.L('pret'); a.rts(); a.nop()
     return a
@@ -582,9 +586,7 @@ def build_data():
 def ref_render(page, font_bits, advs):
     """render 와 같은 셈(검산용)"""
     f0, f1, bx0, bx1, by0, by1, lines = page
-    px = [[0] * W_ for _ in range(H_)]
-    for y in range(by0, by1):
-        for b in range(bx0, bx1): px[y][2 * b] = px[y][2 * b + 1] = 1
+    px = [[0] * W_ for _ in range(H_)]                      # 2026-11-11: 띠 없음(투명 바탕) · 8방향 테두리 3
     for x, ly, gl in lines:
         for g in gl:
             bits = font_bits[g]
@@ -593,7 +595,9 @@ def ref_render(page, font_bits, advs):
                 for c in range(16):
                     if v & (0x8000 >> c):
                         xx, yy = x + c, ly + r
-                        if xx + 1 < W_ and yy + 1 < H_ and px[yy + 1][xx + 1] == 1: px[yy + 1][xx + 1] = 3
+                        for dx, dy in ((-1, -1), (0, -1), (1, -1), (1, 0), (-1, 0), (-1, 1), (0, 1), (1, 1)):
+                            ax, ay = xx + dx, yy + dy
+                            if 0 <= ax < W_ and 0 <= ay < H_ and px[ay][ax] == 0: px[ay][ax] = 3
                         if xx < W_ and yy < H_: px[yy][xx] = 2
             x += advs[g]
     return bytes(px[y][x] << 4 | px[y][x + 1] for y in range(H_) for x in range(0, W_, 2))

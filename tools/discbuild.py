@@ -14,7 +14,7 @@ from cdrom_ecc import recalc_sector
 import voicesub
 
 NAME = 'Game Tengoku - The Game Paradise! (Japan)'
-SRC = os.path.join(r'C:\claude\roms\ss\Game Tengoku - The Game Paradise (Japan)', NAME + ' (Track 01).bin')
+SRC = os.path.join(r'D:\hospi\My Documents\한글패치\SS\ss\Game Tengoku - The Game Paradise (Japan)', NAME + ' (Track 01).bin')   # 2026-11-11 원본 옮겨짐(읽기만)
 OUT = os.path.join(ROOT, 'work', 'disc', 'Track01.bin')
 F_DIR = r'F:\hospi\roms\ss roms'
 EXE_LBA, EXE_MAX = 52, 524 - 52

@@ -1,5 +1,5 @@
 # 게임 천국 (Game Tengoku - The Game Paradise!, 세가 새턴 일본판) 한글 패치
 
-> **내려받기:** [릴리즈 페이지](https://github.com/hospi0/gametengoku-kr-patch/releases/latest) — 최신 v0.9. 적용 방법·원본 MD5 는 패치 묶음의 readme 에 있습니다.
+> **내려받기:** [릴리즈 페이지](https://github.com/hospi0/gametengoku-kr-patch/releases/latest) — 최신 v0.91(자막 검은 띠 없앰 · 글자 테두리). 적용 방법·원본 MD5 는 패치 묶음의 readme 에 있습니다.
 >
 > 이 저장소에는 도구·번역 텍스트·작업 문서만 있습니다(ROM·빌드 결과물 없음).

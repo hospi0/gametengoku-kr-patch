@@ -6,10 +6,10 @@ r"""게임 천국 배포 묶음 — dist/GameTengoku_KR_<VER>/ : 트랙 01 xdelt
 import hashlib, os, shutil, subprocess, sys, zipfile
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(HERE)
 
-VER = 'v0.9'
+VER = 'v0.91'
 XDELTA = r'C:\claude\utils\xdelta.exe'
 ROM = 'Game Tengoku - The Game Paradise! (Japan)'
-SRC = r'C:\claude\roms\ss\Game Tengoku - The Game Paradise (Japan)'
+SRC = r'D:\hospi\My Documents\한글패치\SS\ss\Game Tengoku - The Game Paradise (Japan)'   # 2026-11-11 원본 옮겨짐(읽기만)
 OUT = os.path.join(ROOT, 'work', 'disc')
 NAME = 'GameTengoku_KR_' + VER
 TITLE = '게임 천국 (Game Tengoku - The Game Paradise!, 세가 새턴 일본판) 한글 패치 ' + VER
@@ -51,6 +51,7 @@ README = """{title}
 
   - 음성 자막(새로 추가): 메뉴 점원·나레이션, 캐릭터 대사, 게임 해설·회화 데모 음성극,
     오프닝 노래 가사, 가로·세로(타테) 화면 모두
+    (v0.91: 자막 뒤 검은 띠를 없애고 글자에 테두리를 둘러 화면을 덜 가리게 했습니다)
   - 메뉴 그림 글자: 메인 메뉴·옵션·키 설정·사운드 테스트·데이터 모드·회상 모드
   - 아케이드·어레인지 모드 선택 화면, 게임 중 표시(이름 띠·하이스코어·포즈·스테이지 판·컨티뉴)
   - 스테이지 클리어·보너스·게임오버, 로딩 화면, 엔딩 문구, 오프닝 크레딧·성우 이름
